@@ -972,9 +972,14 @@ class MSPIVisualizerV2:
                 all_present_and_valid_initially = False
                 actions_taken_log.append(f"Added missing column '{col_name}'")
                 default_val_to_add: Any
-                if col_name in string_like_id_cols: default_val_to_add = 'N/A_DEFAULT'
-                elif col_name in datetime_cols_special_handling: default_val_to_add = pd.NaT
-                else: default_val_to_add = 0.0
+                if col_name == 'flow_classification': # Specific default for flow_classification
+                    default_val_to_add = 'Unknown'
+                elif col_name in string_like_id_cols:
+                    default_val_to_add = 'N/A_DEFAULT'
+                elif col_name in datetime_cols_special_handling:
+                    default_val_to_add = pd.NaT
+                else:
+                    default_val_to_add = 0.0
                 df_copy[col_name] = default_val_to_add
                 ensure_logger.warning(f"Visualizer Context: {calculation_name}. Missing column '{col_name}' added with default: {default_val_to_add}.")
             else: 
@@ -1848,7 +1853,7 @@ class MSPIVisualizerV2:
         plot_df['strike_str'] = plot_df['strike_numeric'].apply(lambda x: f"{x:,.0f}")
 
         # --- 4. Define Visual Properties ---
-        flow_color_map = {'Institutional': 'gold', 'Retail': '#00BFFF', 'Mixed': 'white'}
+        flow_color_map = {'Institutional': 'gold', 'Retail': '#00BFFF', 'Mixed': 'white', 'Unknown': 'grey'} # Added 'Unknown': 'grey'
         plot_df['momentum_orb_color'] = plot_df[col_flow_type].map(flow_color_map)
         plot_df['momentum_orb_size'] = plot_df[col_signal_strength].abs().clip(1, 20) * 1.5 + 5
         plot_df['bar_opacity'] = plot_df[col_confidence] * 0.7 + 0.3
